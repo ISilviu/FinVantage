@@ -15,6 +15,7 @@ kombu==5.5.3
 prompt_toolkit==3.0.51
 python-crontab==3.2.0
 python-dateutil==2.9.0.post0
+redis==6.0.0
 six==1.17.0
 sqlparse==0.5.3
 tzdata==2025.2
