@@ -5,6 +5,7 @@ import requests
 from celery import shared_task
 from django.conf import settings
 from tenacity import (
+    after_log,
     before_log,
     retry,
     retry_if_exception_type,
@@ -32,17 +33,18 @@ def sync_companies():
         wait=wait_exponential(multiplier=1, min=4, max=10),
         retry=retry_if_exception_type(requests.exceptions.RequestException),
         before=before_log(logger, logging.DEBUG),
+        after=after_log(logger, logging.DEBUG),
     )
     def get_companies_list():
         response = requests.get(
-            f"{settings.FINANCIAL_DATA_API_URL}/api/v3/stock/list",
+            f"{settings.FINANCIAL_DATA_API_URL}/v3/stock/list",
             params={"apikey": settings.FINANCIAL_DATA_API_KEY},
         )
         response.raise_for_status()
         return response
 
     try:
-        companies_list = get_companies_list()
+        companies_list = get_companies_list().json()
     except requests.exceptions.HTTPError as e:
         if e.response.status_code == 429:
             logger.info("API limit reached. Marking today's usage as limit reached.")
@@ -55,7 +57,7 @@ def sync_companies():
 
     companies = [
         Company(name=company.get("name"), symbol=company.get("symbol"))
-        for company in companies_list.json()
+        for company in companies_list
         if company.get("exchangeShortName", "") in settings.STOCK_EXCHANGES
     ]
 
