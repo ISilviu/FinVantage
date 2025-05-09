@@ -1,3 +1,6 @@
 from django.db import models
 
-# Create your models here.
+
+class ApiUsage(models.Model):
+    date = models.DateField(unique=True)
+    limit_reached = models.BooleanField(default=False)
