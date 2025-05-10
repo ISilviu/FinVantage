@@ -119,6 +119,19 @@ USE_TZ = True
 
 LOG_DIR = env("LOG_PATH")
 
+
+def get_handler_config(name: str) -> dict:
+    return {
+        "level": "INFO",
+        "class": "logging.handlers.TimedRotatingFileHandler",
+        "filename": os.path.join(LOG_DIR, f"{name}.log"),
+        "when": "midnight",
+        "formatter": "verbose",
+        "encoding": "utf-8",
+        "backupCount": 30,
+    }
+
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -138,19 +151,25 @@ LOGGING = {
             "class": "logging.StreamHandler",
             "formatter": "verbose",
         },
-        "sync_companies_file": {
-            "level": "INFO",
-            "class": "logging.handlers.TimedRotatingFileHandler",
-            "filename": os.path.join(LOG_DIR, "sync_companies.log"),
-            "when": "midnight",
-            "formatter": "verbose",
-            "encoding": "utf-8",
-            "backupCount": 30,
-        },
+        "sync_companies": get_handler_config("sync_companies"),
+        "schedule_financial_fetching": get_handler_config(
+            "schedule_financial_fetching"
+        ),
+        "fetch_financial_report": get_handler_config("fetch_financial_report"),
     },
     "loggers": {
         "sync_companies": {
-            "handlers": ["console", "sync_companies_file"],
+            "handlers": ["console", "sync_companies"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "schedule_financial_fetching": {
+            "handlers": ["console", "schedule_financial_fetching"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "fetch_financial_report": {
+            "handlers": ["console", "fetch_financial_report"],
             "level": "INFO",
             "propagate": False,
         },
@@ -181,8 +200,12 @@ CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 CELERY_BEAT_SCHEDULE = {
     "sync-companies": {
         "task": "ingestion.tasks.sync_companies",
-        "schedule": crontab(hour=0, minute=0),
-    }
+        "schedule": crontab(),
+    },
+    "sync-financial-statements": {
+        "task": "ingestion.tasks.schedule_financial_fetching",
+        "schedule": crontab(hour=2),
+    },
 }
 
 # Financial API
