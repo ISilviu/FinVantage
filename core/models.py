@@ -39,7 +39,6 @@ class FinancialStatement(models.Model):
     operating_income = models.DecimalField(max_digits=20, decimal_places=2)
     income_before_tax = models.DecimalField(max_digits=20, decimal_places=2)
     operating_expenses = models.DecimalField(max_digits=20, decimal_places=2)
-    cash_and_equivalents = models.DecimalField(max_digits=20, decimal_places=2)
     research_and_development_expenses = models.DecimalField(
         max_digits=20, decimal_places=2
     )
