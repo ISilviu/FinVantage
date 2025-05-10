@@ -179,9 +179,9 @@ CELERY_TIMEZONE = "UTC"
 CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 
 CELERY_BEAT_SCHEDULE = {
-    "fetch-new-companies": {
+    "sync-companies": {
         "task": "ingestion.tasks.sync_companies",
-        "schedule": crontab(),  # crontab(hour=10),
+        "schedule": crontab(hour=0, minute=0),
     }
 }
 
