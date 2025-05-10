@@ -52,3 +52,15 @@ class FinancialStatement(models.Model):
             "period",
             "currency",
         )
+
+
+class CompanyDataTracker(models.Model):
+    """
+    Will be used to track the data fetches for each company.
+    For example, we will fetch the financial reports only yearly.
+    """
+
+    company = models.OneToOneField(
+        Company, on_delete=models.CASCADE, related_name="data_tracker"
+    )
+    last_financial_report_fetch = models.DateField(null=True)
