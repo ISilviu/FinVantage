@@ -21,6 +21,8 @@ logger = logging.getLogger("sync_companies")
 
 @shared_task
 def sync_companies():
+    logger.info("Starting sync_companies task ...")
+
     today = datetime.date.today()
     today_api_usage, created = ApiUsage.objects.get_or_create(date=today)
 
