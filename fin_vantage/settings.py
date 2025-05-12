@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django_celery_beat",
+    "waffle",
     "rest_framework",
     "core",
     "ingestion",
@@ -56,6 +57,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "waffle.middleware.WaffleMiddleware",
 ]
 
 ROOT_URLCONF = "fin_vantage.urls"
@@ -198,13 +200,13 @@ CELERY_TIMEZONE = "UTC"
 CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 
 CELERY_BEAT_SCHEDULE = {
-    "sync-companies": {
-        "task": "ingestion.tasks.sync_companies",
-        "schedule": crontab(),
-    },
+    # "sync-companies": {
+    #     "task": "ingestion.tasks.sync_companies",
+    #     "schedule": crontab(hour=2),
+    # },
     "sync-financial-statements": {
         "task": "ingestion.tasks.schedule_financial_fetching",
-        "schedule": crontab(hour=2),
+        "schedule": crontab(),
     },
 }
 
