@@ -10,9 +10,11 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 import environ
+from celery.schedules import crontab
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -40,6 +42,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django_celery_beat",
+    "waffle",
     "rest_framework",
     "core",
     "ingestion",
@@ -53,6 +57,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "waffle.middleware.WaffleMiddleware",
 ]
 
 ROOT_URLCONF = "fin_vantage.urls"
@@ -112,6 +117,68 @@ USE_I18N = True
 USE_TZ = True
 
 
+# Logging
+
+LOG_DIR = env("LOG_PATH")
+
+
+def get_handler_config(name: str) -> dict:
+    return {
+        "level": "INFO",
+        "class": "logging.handlers.TimedRotatingFileHandler",
+        "filename": os.path.join(LOG_DIR, f"{name}.log"),
+        "when": "midnight",
+        "formatter": "verbose",
+        "encoding": "utf-8",
+        "backupCount": 30,
+    }
+
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "{asctime} {levelname} {module} {message}",
+            "style": "{",
+        },
+        "simple": {
+            "format": "{levelname} {message}",
+            "style": "{",
+        },
+    },
+    "handlers": {
+        "console": {
+            "level": "INFO",
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
+        },
+        "sync_companies": get_handler_config("sync_companies"),
+        "schedule_financial_fetching": get_handler_config(
+            "schedule_financial_fetching"
+        ),
+        "fetch_financial_report": get_handler_config("fetch_financial_report"),
+    },
+    "loggers": {
+        "sync_companies": {
+            "handlers": ["console", "sync_companies"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "schedule_financial_fetching": {
+            "handlers": ["console", "schedule_financial_fetching"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "fetch_financial_report": {
+            "handlers": ["console", "fetch_financial_report"],
+            "level": "INFO",
+            "propagate": False,
+        },
+    },
+}
+
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
@@ -121,3 +188,29 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# Celery
+CELERY_BROKER_URL = env("CELERY_BROKER_URL", default="redis://localhost:6379/0")
+CELERY_RESULT_BACKEND = env("CELERY_RESULT_BACKEND", default="redis://localhost:6379/0")
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_TIMEZONE = "UTC"
+
+CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
+
+CELERY_BEAT_SCHEDULE = {
+    "sync-companies": {
+        "task": "ingestion.tasks.sync_companies",
+        "schedule": crontab(hour=0),
+    },
+    "sync-financial-statements": {
+        "task": "ingestion.tasks.schedule_financial_fetching",
+        "schedule": crontab(hour=1),
+    },
+}
+
+# Financial API
+FINANCIAL_DATA_API_URL = env("FINANCIAL_DATA_API_URL")
+FINANCIAL_DATA_API_KEY = env("FINANCIAL_DATA_API_KEY")
+STOCK_EXCHANGES = env.list("STOCK_EXCHANGES")

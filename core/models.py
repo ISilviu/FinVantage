@@ -4,7 +4,7 @@ from django.db import models
 class Company(models.Model):
     name = models.CharField(max_length=255)
     symbol = models.CharField(max_length=10, unique=True)
-    cik = models.CharField(max_length=10, unique=True)
+    cik = models.CharField(max_length=10, unique=True, blank=True, null=True)
 
     image = models.URLField(blank=True, null=True)
 
@@ -21,7 +21,9 @@ class Currency(models.Model):
 
 
 class FinancialStatement(models.Model):
-    company = models.ForeignKey(Company, on_delete=models.CASCADE)
+    company = models.ForeignKey(
+        Company, on_delete=models.CASCADE, related_name="financial_statements"
+    )
 
     date_reported = models.DateField()
     calendar_year = models.IntegerField()
@@ -37,7 +39,27 @@ class FinancialStatement(models.Model):
     operating_income = models.DecimalField(max_digits=20, decimal_places=2)
     income_before_tax = models.DecimalField(max_digits=20, decimal_places=2)
     operating_expenses = models.DecimalField(max_digits=20, decimal_places=2)
-    cash_and_equivalents = models.DecimalField(max_digits=20, decimal_places=2)
     research_and_development_expenses = models.DecimalField(
         max_digits=20, decimal_places=2
     )
+
+    class Meta:
+        unique_together = (
+            "company",
+            "date_reported",
+            "calendar_year",
+            "period",
+            "currency",
+        )
+
+
+class CompanyDataTracker(models.Model):
+    """
+    Will be used to track the data fetches for each company.
+    For example, we will fetch the financial reports only yearly.
+    """
+
+    company = models.OneToOneField(
+        Company, on_delete=models.CASCADE, related_name="data_tracker"
+    )
+    last_financial_report_fetch = models.DateField(null=True)
