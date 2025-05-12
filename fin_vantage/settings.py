@@ -200,13 +200,13 @@ CELERY_TIMEZONE = "UTC"
 CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 
 CELERY_BEAT_SCHEDULE = {
-    # "sync-companies": {
-    #     "task": "ingestion.tasks.sync_companies",
-    #     "schedule": crontab(hour=2),
-    # },
+    "sync-companies": {
+        "task": "ingestion.tasks.sync_companies",
+        "schedule": crontab(hour=0),
+    },
     "sync-financial-statements": {
         "task": "ingestion.tasks.schedule_financial_fetching",
-        "schedule": crontab(),
+        "schedule": crontab(hour=1),
     },
 }
 
