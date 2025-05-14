@@ -18,6 +18,8 @@ django-waffle==4.2.0
 djangorestframework==3.16.0
 idna==3.10
 kombu==5.5.3
+numpy==2.2.5
+pgvector==0.4.1
 prompt_toolkit==3.0.51
 psycopg==3.2.7
 python-crontab==3.2.0
