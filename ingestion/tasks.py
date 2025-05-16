@@ -21,7 +21,7 @@ from tenacity import (
 
 from core.models import Company, CompanyDataTracker, Currency, FinancialStatement
 from ingestion.models import ApiUsage
-from ingestion.queues import Queues
+from queues import Queues
 
 
 def is_api_usable():
