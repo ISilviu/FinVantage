@@ -26,3 +26,4 @@ class FinancialReportAnalysis(models.Model):
         db_index=True,
         help_text="Vector representation of the analysis text.",
     )
+    last_modified = models.DateField(auto_now=True, null=True, blank=True)
