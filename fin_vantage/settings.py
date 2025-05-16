@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "core",
     "ingestion",
+    "embeds",
 ]
 
 MIDDLEWARE = [
