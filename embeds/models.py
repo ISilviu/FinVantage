@@ -1,4 +1,5 @@
 from django.db import models
+from langchain_mistralai import MistralAIEmbeddings
 from pgvector.django import VectorField
 
 from core.models import FinancialStatement
@@ -6,18 +7,19 @@ from core.models import FinancialStatement
 
 class LlmModel:
     class MistralAI:
-        embedding_model = "mistral-ai/mistral-7b-v0.1"
+        embedding_model = MistralAIEmbeddings
+        model_name = "mistral-embed"
         embedding_length = 1024
 
 
 CURRENT_MODEL = LlmModel.MistralAI
 
 
-class FinancialReportAnalysis(models.Model):
-    financial_report = models.ForeignKey(
+class FinancialStatementAnalysis(models.Model):
+    financial_statement = models.OneToOneField(
         FinancialStatement,
         on_delete=models.CASCADE,
-        related_name="financial_report_analysis",
+        related_name="financial_statement_analysis",
     )
     analysis_text = models.TextField(
         help_text="The generated analysis text that was embedded.",
