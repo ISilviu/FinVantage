@@ -162,6 +162,7 @@ LOGGING = {
         "generate_financial_sentences": get_handler_config(
             "generate_financial_sentences"
         ),
+        "build_financial_embeddings": get_handler_config("build_financial_embeddings"),
     },
     "loggers": {
         "sync_companies": {
@@ -181,6 +182,11 @@ LOGGING = {
         },
         "generate_financial_sentences": {
             "handlers": ["console", "generate_financial_sentences"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "build_financial_embeddings": {
+            "handlers": ["console", "build_financial_embeddings"],
             "level": "INFO",
             "propagate": False,
         },
