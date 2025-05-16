@@ -19,6 +19,11 @@ class FinancialReportAnalysis(models.Model):
         on_delete=models.CASCADE,
         related_name="financial_report_analysis",
     )
+    analysis_text = models.TextField(
+        help_text="The generated analysis text that was embedded.",
+        blank=True,
+        null=True,
+    )
     embedding = VectorField(
         max_length=CURRENT_MODEL.embedding_length,
         null=True,
