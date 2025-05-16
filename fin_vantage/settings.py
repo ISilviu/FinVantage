@@ -159,6 +159,9 @@ LOGGING = {
             "schedule_financial_fetching"
         ),
         "fetch_financial_report": get_handler_config("fetch_financial_report"),
+        "generate_financial_sentences": get_handler_config(
+            "generate_financial_sentences"
+        ),
     },
     "loggers": {
         "sync_companies": {
@@ -173,6 +176,11 @@ LOGGING = {
         },
         "fetch_financial_report": {
             "handlers": ["console", "fetch_financial_report"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "generate_financial_sentences": {
+            "handlers": ["console", "generate_financial_sentences"],
             "level": "INFO",
             "propagate": False,
         },
@@ -209,7 +217,12 @@ CELERY_BEAT_SCHEDULE = {
         "task": "ingestion.tasks.schedule_financial_fetching",
         "schedule": crontab(hour=1),
     },
+    "generate-financial-sentences": {
+        "task": "embeds.tasks.generate_financial_sentences",
+        "schedule": crontab(hour=4),
+    },
 }
+
 
 # Financial API
 FINANCIAL_DATA_API_URL = env("FINANCIAL_DATA_API_URL")
