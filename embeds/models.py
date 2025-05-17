@@ -1,5 +1,5 @@
 from django.db import models
-from langchain_mistralai import MistralAIEmbeddings
+from langchain_mistralai import ChatMistralAI, MistralAIEmbeddings
 from pgvector.django import VectorField
 
 from core.models import FinancialStatement
@@ -8,6 +8,8 @@ from core.models import FinancialStatement
 class LlmModel:
     class MistralAI:
         embedding_model = MistralAIEmbeddings
+        chat_model = ChatMistralAI
+        chat_model_name= "mistral-small-latest"
         model_name = "mistral-embed"
         embedding_length = 1024
 
